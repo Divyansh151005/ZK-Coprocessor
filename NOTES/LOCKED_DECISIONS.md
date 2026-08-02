@@ -2,7 +2,8 @@
 
 **Date:** 2026-08-02  
 **Confirmed by:** User acceptance of production-pragmatic critique  
-**Still open:** zkVM vendor pick, header-commitment build-vs-integrate, L2 order, ERC-20 pricing mechanism  
+**Still open:** L2 mainnet timing; ERC-20 pricing implementation (design in Phase 5).  
+**Resolved in plan/implementation:** zkVM = **SP1**; header commitment = **build** Axiom-class; L2 order Anvil→Sepolia→Base→Arb→OP→mainnet; ETH bounty first.  
 
 These decisions are binding for planning and implementation unless `End_Goal` requires a change.
 

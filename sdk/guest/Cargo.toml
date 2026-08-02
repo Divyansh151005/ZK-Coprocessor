@@ -1,0 +1,9 @@
+[package]
+name = "zk-coprocessor-sdk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+header-commitment = { path = "../../crates/header-commitment" }
+zk-coprocessor-lib = { path = "../../lib" }

@@ -1,0 +1,22 @@
+[package]
+name = "zk-coprocessor-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "host"
+path = "src/main.rs"
+
+[[bin]]
+name = "prove-mock"
+path = "src/bin/prove_mock.rs"
+
+[dependencies]
+zk-coprocessor-lib = { path = "../lib" }
+alloy-sol-types = { workspace = true }
+clap = { workspace = true }
+hex = { workspace = true }
+sha3 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

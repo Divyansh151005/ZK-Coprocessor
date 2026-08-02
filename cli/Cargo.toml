@@ -1,0 +1,13 @@
+[package]
+name = "create-zk-coprocessor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "create-zk-coprocessor"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+serde_json = { workspace = true }

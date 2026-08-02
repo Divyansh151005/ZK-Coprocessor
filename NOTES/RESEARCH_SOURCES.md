@@ -31,7 +31,12 @@ Collected 2026-08-02 while reviewing `End_Goal` / `SDD` / `PHASES`. Prefer these
 - `eth_getProof` / Merkle Patricia Trie / RLP / Keccak-256 (witness path for Phase 2)  
 - BN254 / alt_bn128 precompiles (cheap EVM pairing verify)
 
-## Notes on ceremony / trust
+## Pins used in this repo (2026-08-02)
+
+- Foundry: forge 1.5.1-stable
+- `alloy-sol-types`: 0.8.x
+- SP1 guest/host target: `sp1-zkvm` / `sp1-sdk` **6.0.1** (optional feature; guest excluded from default workspace build until `sp1up`)
+- Local Anvil verifier: `MockSP1Verifier` (`ISP1Verifier`-compatible); production = Succinct `SP1VerifierGateway` Groth16
 
 - SP1 Groth16: Aztec Ignition + Succinct contributions (document; Plonk if unacceptable)  
 - RISC Zero: own Groth16 ceremony (document)  
