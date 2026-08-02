@@ -1,0 +1,27 @@
+---
+description: Build phase-by-phase; each phase must be industry-grade tested before the next; push only after green
+alwaysApply: true
+---
+
+# Phase delivery gate
+
+Work strictly **one phase at a time** (see `PHASES`). Do not start the next phase until the current phase is complete.
+
+## Phase complete means
+
+1. Scope for that phase is implemented as a coherent unit (not half-wired stubs presented as done).
+2. **Industry-grade validation** for that phase’s surface:
+   - Unit / contract / guest tests for new logic
+   - Integration tests across the touched boundary
+   - End-to-end path for the phase exit criteria (see `PHASES` / `NOTES/VERTICAL_SLICE.md`)
+   - Negative tests: bad proofs, auth failures, reentrancy, expired requests, tampered inputs — wherever that phase owns the risk
+   - Build/type-check clean (`check-compiler-errors` when applicable)
+3. Evidence cited (commands + results). No “should work.”
+4. Only then: `commit-push-after-success` to `https://github.com/Divyansh151005/ZK-Coprocessor.git`.
+
+## Forbidden
+
+- Skipping tests to “move faster”
+- Leaving untested paths in the phase’s owned code
+- Pushing unvalidated or red work
+- Starting Phase N+1 while Phase N exit criteria are open

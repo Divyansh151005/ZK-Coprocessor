@@ -17,8 +17,10 @@ No feature, bugfix, refactor, or integration is done until it has been exercised
 
 ## Gates
 
+- Work **one phase at a time** (`phase-delivery-gate`). Do not start Phase N+1 until Phase N is fully tested and pushed.
 - Do **not** start the next feature/step until the current step’s checks above are green.
 - After green, follow `commit-push-after-success` (add, commit, push) before the next step.
+- Phase validation must be **robust and complete** for that phase’s owned surface: happy path, failure path, and E2E exit criteria — industry-standard, nothing skipped.
 - Do **not** treat “code looks right” or “should work” as validation.
 - If E2E cannot run yet (missing deps, no server, empty scaffold), say **BLOCKED**, list what is missing, set it up, then re-run — do not skip.
 - For behavior claims (“fixed”, “faster”, “works”), use `verify-this` with baseline vs treatment when a before/after comparison is meaningful.

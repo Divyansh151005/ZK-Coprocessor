@@ -9,12 +9,14 @@ The user has pre-authorized `git add`, `git commit`, and `git push` for this rep
 
 ## When to save
 
-After a milestone that passed `test-and-validate-e2e` (build/tests/E2E evidence green), including:
-- Scaffold or dependency setup that works
+After a **phase** (or milestone) that passed `test-and-validate-e2e` + `phase-delivery-gate` (build/tests/E2E/negatives green), including:
+- A completed phase from `PHASES` with exit criteria met
+- Scaffold or dependency setup that works and is tested
 - A feature, fix, or integration that is proven
 - Rules/docs that complete a requested setup step
 
-Do **not** commit failed, half-broken, or unvalidated work just to “checkpoint.”
+Do **not** commit failed, half-broken, untested, or unvalidated work just to “checkpoint.”
+Pushing to GitHub happens **only after** that phase’s validation is complete and green.
 
 ## Procedure
 

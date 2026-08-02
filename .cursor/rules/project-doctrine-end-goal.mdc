@@ -13,6 +13,7 @@ alwaysApply: true
 - **`MCPs`** is optional tooling guidance, not a requirement.
 - Durable research lives in **`NOTES/`**. Read it before planning or implementing a phase.
 - **Do not implement** until plan mode finishes; then start with Phase 0 vertical slice, not isolated layers.
+- Deliver **phase-by-phase**: full industry-grade tests for that phase → then commit/push → only then next phase. `End_Goal` remains the product north star.
 
 ## Before implementing any phase plan the user provides
 
