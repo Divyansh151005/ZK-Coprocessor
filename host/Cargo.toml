@@ -21,6 +21,10 @@ name = "prove-mpt"
 path = "src/bin/prove_mpt.rs"
 
 [[bin]]
+name = "spn-balance"
+path = "src/bin/spn_balance.rs"
+
+[[bin]]
 name = "vkey"
 path = "src/bin/vkey.rs"
 

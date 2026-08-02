@@ -33,9 +33,13 @@
     (`insufficient balance 0.0000 PROVE for request cost 0.4467 PROVE`)
 - Escape hatch after deposit ([docs](https://docs.succinct.xyz/docs/sp1/prover-network/quickstart)):
   ```bash
+  # check escrow (no deposit — Explorer UI still required):
+  cargo run -p zk-coprocessor-host --release --bin spn-balance
+  ./target/release/spn-balance --min 1   # CI gate: exit 1 if < 1 PROVE
   # fund + deposit PROVE to the requester, then:
   PROVE_MODE=sp1 ./scripts/e2e-anvil.sh
   ```
+- Note: `cargo prove spn deposit` is **not** in cargo-prove 6.3.1; deposits go through Explorer → SuccinctVApp.
 - Until a fixture exists at `contracts/src/fixtures/groth16-add.json`, SP1 Anvil happy-path fulfillment is **BLOCKED on PROVE funding**; gateway wiring + ELF + mock-rejection remain green.
 
 ## Commands
@@ -45,7 +49,9 @@ export PATH="$HOME/.sp1/bin:$HOME/.cargo/bin:$HOME/.foundry/bin:$PATH"
 cd guest && cargo prove build
 cargo build -p zk-coprocessor-host --release --bin vkey --bin prove-groth16
 ./target/release/vkey
-# optional: generate fixture (needs RAM or SPN)
+# check SPN escrow before Groth16
+./target/release/spn-balance
+# optional: generate fixture (needs RAM or SPN + funded PROVE)
 ./target/release/prove-groth16 --a 2 --b 3 --out contracts/src/fixtures/groth16-add.json
 PROVE_MODE=sp1 ./scripts/e2e-anvil.sh
 ```
