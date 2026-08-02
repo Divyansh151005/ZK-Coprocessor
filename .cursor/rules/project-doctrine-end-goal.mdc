@@ -1,0 +1,25 @@
+---
+description: END_GOAL is source of truth; research and gap-fill every phase before coding
+alwaysApply: true
+---
+
+# Project doctrine (ZK-Coprocessor)
+
+## Source of truth
+
+- **`End_Goal`** is the ultimate truth for product features, qualities, and end-state. If anything conflicts with it, prefer `End_Goal`.
+- **`SDD`** and **`PHASES`** are flexible working plans. They may be incomplete or non-production-grade. Improve them when research shows voids.
+- **`MCPs`** is optional tooling guidance, not a requirement.
+- Durable research lives in **`NOTES/`**. Read it before planning or implementing a phase.
+
+## Before implementing any phase plan the user provides
+
+1. Re-read `End_Goal` and restate how this phase serves the final product.
+2. Diff the given phase plan against `End_Goal`, `SDD`, `PHASES`, and `NOTES/`.
+3. Research primary sources (zkVM docs, Axiom-style state caches, verifier contracts, proving networks)—do not invent crypto or protocol details.
+4. List voids, risks, and recommended upgrades for that phase.
+5. Only then design/implement. Never start coding from an unexamined phase brief.
+
+## Motive (one line)
+
+Trustless off-chain compute + historical chain data for smart contracts, with ZK guarantees and near-zero crypto burden on developers (“AWS Lambda of Web3”).

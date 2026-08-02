@@ -21,5 +21,5 @@ This repo uses Cursor Team Kit for local validation and shipping. Prefer these s
 - Keep imports at file top (Team Kit `no-inline-imports`).
 - Exhaustive `switch` on unions/enums with a `never` default (Team Kit `typescript-exhaustive-switch`).
 - Do not invent compile/test success — re-run the repo’s real check commands.
-- Order: `research-first-deep-tech` → implement → `test-and-validate-e2e` → `commit-push-after-success` → next step. Use `tooling-autonomy` when a skill/MCP/CLI is missing.
+- Order: `project-doctrine-end-goal` + `research-first-deep-tech` → implement → `test-and-validate-e2e` → `commit-push-after-success` → next step. Use `tooling-autonomy` when a skill/MCP/CLI is missing.
 - This workspace may start sparse; if there is no compile target yet, say so explicitly instead of skipping silently.

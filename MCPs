@@ -1,0 +1,60 @@
+While an MCP (Model Context Protocol) server is not strictly *required*—you can build this entirely using Cursor’s base AI and standard terminal commands—adding Web3-specific MCPs acts as a massive force multiplier.
+
+Building a ZK-Coprocessor requires jumping between Solidity, Rust, and live blockchain state. MCP servers allow Cursor to directly interact with your local compiler, simulate transactions, and pull live cryptographic proofs from remote nodes without you having to write throwaway fetch scripts.
+
+Here are the top MCP servers you should add to Cursor for this specific project, along with how to use them:
+
+### 1. Foundry MCP Server
+
+This is the most critical tool for **Phase 1** (The On-Chain Gateway). It connects Cursor directly to the Foundry toolchain (`forge`, `cast`, `anvil`).
+
+* **How it helps:** Cursor can automatically run your test suites, deploy local Anvil chains, and debug failing Solidity execution traces. It even uses `Heimdall-rs` to decompile and analyze EVM bytecode.
+* **Prompt Example:** *"Deploy the RequestRouter.sol to my local Anvil node using Foundry MCP, then simulate a user transaction and tell me exactly how much gas the EVM used."*
+* **How to add to Cursor:**
+1. Go to Cursor Settings > Features > MCP Servers > `+ Add new MCP server`
+2. Name: `foundry-mcp`
+3. Type: `command`
+4. Command: `npx -y @skillsllm/foundry-mcp-server` *(Requires Foundry and Node.js installed)*
+
+
+
+### 2. EVM MCP (JSON-RPC Access)
+
+This is vital for **Phase 2** (The Trustless Data Layer). Your zkVM needs to verify Merkle Patricia Trie (MPT) proofs. To get these proofs, you normally have to write annoying curl scripts to an Archive Node.
+
+* **How it helps:** It gives Cursor direct, read-only access to standard Ethereum JSON-RPC methods (like `eth_getProof`, `eth_getStorageAt`, `eth_getBlockByNumber`). Cursor can fetch live mainnet data and instantly inject it into your Rust zkVM tests.
+* **Prompt Example:** *"Use EVM MCP to call `eth_getProof` for the USDC contract address at block 19,000,000. Take the resulting MPT sibling hashes and format them as a Rust array in my zkVM Data Reader file."*
+* **How to add to Cursor:**
+1. Go to Cursor Settings > Features > MCP Servers > `+ Add new MCP server`
+2. Name: `evm-mcp`
+3. Type: `command`
+4. Command: `npx -y @jamesanz/evm-mcp`
+*(You can pass your Infura/Alchemy API key in the environment variables to access archive data)*
+
+
+
+### 3. Etherscan / Blockscout MCP
+
+When you get to **Phase 5** (The Off-Chain Orchestrator) and start testing on public testnets (like Sepolia), you will need to verify if your ZK proofs are actually being accepted by the blockchain.
+
+* **How it helps:** Allows Cursor to fetch live ABIs, check transaction statuses, and read verified contract code from other protocols you might want to integrate with your coprocessor.
+* **Prompt Example:** *"Use the Etherscan MCP to fetch the ABI for the Sepolia Groth16 Verifier I just deployed, and use it to update the TypeScript bindings in my relayer node."*
+* **How to add to Cursor:** Search for standard Etherscan MCPs in the open-source registry (e.g., using Go or Python implementations) or simply rely on the EVM MCP mentioned above, which covers most RPC needs.
+
+---
+
+### Do you need an MCP for the Rust / zkVM side?
+
+Currently, there isn't a dedicated "SP1" or "RISC Zero" MCP server. However, you don't need one. Cursor's native workspace context handles Rust perfectly.
+
+To bridge the gap for the ZK execution (**Phase 3 & 4**), you can simply use **Cursor's built-in Terminal execution capabilities**:
+
+1. Open a Cursor Composer pane (Ctrl+I or Cmd+I).
+2. Tell Cursor: *"Run `cargo prove build` in the terminal. If it fails, read the terminal output and fix the Rust constraint errors in my guest circuit."*
+
+### The Optimal Setup Strategy
+
+Don't install too many MCPs at once, as they consume the LLM's context window.
+
+1. Start with the **Foundry MCP** while building your Solidity contracts.
+2. Switch to the **EVM MCP** when you start writing your Rust Orchestrator and need to fetch live block headers and state proofs.
