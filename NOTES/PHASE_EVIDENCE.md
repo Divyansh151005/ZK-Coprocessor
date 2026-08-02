@@ -5,8 +5,9 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 | Phase | Surface | Evidence |
 |-------|---------|----------|
 | 1 | ProgramRegistry, RequestRouter, Fulfillment, CallbackDispatcher | `forge test --match-contract Phase1GatewayTest` — 9/9 incl. allowlist, refund, replay bind, double fulfill |
-| 2 | HeaderCommitment + Rust PMMR/MPT helpers | `Phase2HeaderCommitmentTest` 4/4; `cargo test -p header-commitment`; `zk-coprocessor-sdk` `read_state` tamper/honest |
-| 2b | Milestone C in-guest MPT (`alloy-trie`) | `NOTES/MILESTONE_C_MPT.md`; `./scripts/e2e-mpt.sh` (WETH slot0 execute + tamper reject) |
+| 2 | HeaderCommitment + Rust PMMR/MPT helpers | `Phase2HeaderCommitmentTest` 4/4; `cargo test -p header-commitment`; `zk-coprocessor-sdk` `read_state` |
+| 2b | Milestone C in-guest MPT (`alloy-trie`) | `NOTES/MILESTONE_C_MPT.md`; `./scripts/e2e-mpt.sh` |
+| 2c | HeaderCommitment + Anvil MPT vertical | `./scripts/e2e-header-mpt-anvil.sh` (mock commit → ToyStorage getProof → mpt-guest) |
 | 3 | Guest SDK + journal codegen docs | `cargo test -p zk-coprocessor-sdk` |
 | 4 | Sepolia/Groth16 | **BLOCKED_UNFUNDED** — `NOTES/PHASE4_SEPOLIA.md`; gate: `./scripts/preflight-spn.sh` |
 | 5 | Orchestrator FSM, floor bounty, failure injection, soak N=32 | `cargo test -p zk-orchestrator` |

@@ -17,6 +17,14 @@ sol! {
         bytes32 slot;
         bytes32 value;
     }
+
+    /// HeaderCommitment.commitBatch public values.
+    struct HeaderUpdatePublicValues {
+        uint64 startBlock;
+        bytes32 batchRoot;
+        bytes32 prevSnapshotId;
+        bytes32 newSnapshotId;
+    }
 }
 
 /// Compute sum with wrapping overflow (explicit Phase 0 policy).

@@ -25,11 +25,16 @@ name = "spn-balance"
 path = "src/bin/spn_balance.rs"
 
 [[bin]]
+name = "header-commit-encode"
+path = "src/bin/header_commit_encode.rs"
+
+[[bin]]
 name = "vkey"
 path = "src/bin/vkey.rs"
 
 [dependencies]
 zk-coprocessor-lib = { path = "../lib" }
+header-commitment = { path = "../crates/header-commitment" }
 alloy-sol-types = { workspace = true }
 clap = { workspace = true }
 hex = { workspace = true }
