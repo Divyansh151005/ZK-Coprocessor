@@ -63,3 +63,11 @@ chmod +x scripts/e2e-anvil.sh && ./scripts/e2e-anvil.sh
 | `PROVE_MODE` | `mock` |
 | `PROGRAM_VKEY` | mock mode only |
 | `FIXTURE` | `contracts/src/fixtures/groth16-add.json` |
+| `SPN_MIN_PROVE` | `1` (whole PROVE; SP1 network pre-flight) |
+
+## SPN pre-flight
+
+```bash
+./scripts/preflight-spn.sh
+# exit 0 if escrow OK; exit 2 if BLOCKED_UNFUNDED
+```

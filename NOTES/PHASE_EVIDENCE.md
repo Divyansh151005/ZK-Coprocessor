@@ -8,7 +8,7 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 | 2 | HeaderCommitment + Rust PMMR/MPT helpers | `Phase2HeaderCommitmentTest` 4/4; `cargo test -p header-commitment`; `zk-coprocessor-sdk` `read_state` tamper/honest |
 | 2b | Milestone C in-guest MPT (`alloy-trie`) | `NOTES/MILESTONE_C_MPT.md`; `./scripts/e2e-mpt.sh` (WETH slot0 execute + tamper reject) |
 | 3 | Guest SDK + journal codegen docs | `cargo test -p zk-coprocessor-sdk` |
-| 4 | Sepolia/Groth16 hardening notes + version pins | `NOTES/PHASE4_SEPOLIA.md`; SPN wired but **0 PROVE** — see `NOTES/MILESTONE_AB_SP1.md` |
+| 4 | Sepolia/Groth16 | **BLOCKED_UNFUNDED** — `NOTES/PHASE4_SEPOLIA.md`; gate: `./scripts/preflight-spn.sh` |
 | 5 | Orchestrator FSM, floor bounty, failure injection, soak N=32 | `cargo test -p zk-orchestrator` |
 | 6 | `create-zk-coprocessor` scaffold + TS journal decode | `cargo test -p create-zk-coprocessor`; JS decode assertSum |
 | 7 | ProverNetwork stake/slash/earn + L2 matrix note | `Phase7ProverNetworkTest` 2/2; `NOTES/PHASE7_L2_MATRIX.md` |
