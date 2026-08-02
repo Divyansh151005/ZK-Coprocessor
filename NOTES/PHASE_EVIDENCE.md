@@ -10,7 +10,7 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 | 2c | HeaderCommitment + Anvil MPT vertical | `./scripts/e2e-header-mpt-anvil.sh` (mock commit → ToyStorage getProof → mpt-guest) |
 | 3 | Guest SDK + journal codegen docs | `cargo test -p zk-coprocessor-sdk` |
 | 4 | Sepolia/Groth16 | **BLOCKED_UNFUNDED** — `NOTES/PHASE4_SEPOLIA.md`; gate: `./scripts/preflight-spn.sh` |
-| 5 | Orchestrator FSM, floor bounty, failure injection, soak N=32 | `cargo test -p zk-orchestrator` |
+| 5 | Orchestrator FSM + runnable node soak | `cargo test -p zk-orchestrator`; `./scripts/e2e-orchestrator-soak.sh` (N=8) |
 | 6 | `create-zk-coprocessor` scaffold + TS journal decode | `cargo test -p create-zk-coprocessor`; JS decode assertSum |
 | 7 | ProverNetwork stake/slash/earn + L2 matrix note | `Phase7ProverNetworkTest` 2/2; `NOTES/PHASE7_L2_MATRIX.md` |
 
