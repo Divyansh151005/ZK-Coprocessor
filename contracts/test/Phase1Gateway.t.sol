@@ -9,6 +9,7 @@ import {CallbackDispatcher} from "../src/CallbackDispatcher.sol";
 import {Fulfillment} from "../src/Fulfillment.sol";
 import {MockConsumer} from "../src/MockConsumer.sol";
 import {ICoprocessorConsumer} from "../src/interfaces/ICoprocessorConsumer.sol";
+import {MockERC20} from "../src/MockERC20.sol";
 
 contract ReentrantConsumer is ICoprocessorConsumer {
     Fulfillment public fulfillment;
@@ -145,6 +146,47 @@ contract Phase1GatewayTest is Test {
         bytes memory input = abi.encode(uint64(1), uint64(1));
         vm.expectRevert(ProgramRegistry.InactiveProgram.selector);
         router.request(programId, input, address(consumer), 0);
+    }
+
+    function test_Erc20RequestAndFulfill() public {
+        MockERC20 token = new MockERC20();
+        token.mint(address(this), 1_000 ether);
+        token.approve(address(router), 100 ether);
+        bytes memory input = abi.encode(uint64(2), uint64(3));
+        uint256 id = router.requestErc20(programId, input, address(consumer), 0, address(token), 100 ether);
+        assertEq(router.bountyToken(id), address(token));
+        assertEq(token.balanceOf(address(router)), 100 ether);
+        bytes memory pv = _pv(id, 2, 3);
+        uint256 before = token.balanceOf(address(this));
+        fulfillment.fulfill(id, pv, _proof(pv));
+        assertEq(consumer.receiveCount(), 1);
+        assertEq(token.balanceOf(address(this)) - before, 100 ether);
+        assertEq(token.balanceOf(address(router)), 0);
+    }
+
+    function test_Erc20RefundAfterTimeout() public {
+        MockERC20 token = new MockERC20();
+        token.mint(address(this), 50 ether);
+        token.approve(address(router), 50 ether);
+        bytes memory input = abi.encode(uint64(1), uint64(1));
+        uint256 id = router.requestErc20(programId, input, address(consumer), 100, address(token), 50 ether);
+        vm.warp(block.timestamp + 101);
+        uint256 before = token.balanceOf(address(this));
+        router.refund(id);
+        assertEq(token.balanceOf(address(this)) - before, 50 ether);
+    }
+
+    function testRevert_Erc20ZeroBounty() public {
+        MockERC20 token = new MockERC20();
+        bytes memory input = abi.encode(uint64(1), uint64(1));
+        vm.expectRevert(RequestRouter.ZeroBounty.selector);
+        router.requestErc20(programId, input, address(consumer), 0, address(token), 0);
+    }
+
+    function testRevert_Erc20InvalidToken() public {
+        bytes memory input = abi.encode(uint64(1), uint64(1));
+        vm.expectRevert(RequestRouter.InvalidToken.selector);
+        router.requestErc20(programId, input, address(consumer), 0, address(0), 1);
     }
 
     receive() external payable {}

@@ -4,7 +4,7 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 
 | Phase | Surface | Evidence |
 |-------|---------|----------|
-| 1 | ProgramRegistry, RequestRouter, Fulfillment, CallbackDispatcher | `forge test --match-contract Phase1GatewayTest` — 9/9 incl. allowlist, refund, replay bind, double fulfill |
+| 1 | ProgramRegistry, RequestRouter, Fulfillment, CallbackDispatcher + ERC-20 bounty | `forge test --match-contract Phase1GatewayTest` — 13/13 incl. ERC-20 fulfill/refund/negatives |
 | 2 | HeaderCommitment + Rust PMMR/MPT helpers | `Phase2HeaderCommitmentTest` 4/4; `cargo test -p header-commitment`; `zk-coprocessor-sdk` `read_state` |
 | 2b | Milestone C in-guest MPT (`alloy-trie`) | `NOTES/MILESTONE_C_MPT.md`; `./scripts/e2e-mpt.sh` |
 | 2c | HeaderCommitment + Anvil MPT vertical | `./scripts/e2e-header-mpt-anvil.sh` (mock commit → ToyStorage getProof → mpt-guest) |
@@ -17,5 +17,5 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 ## Full forge
 
 ```text
-Ran 4 test suites: 22 tests passed, 0 failed
+Ran 4 test suites: 29 tests passed, 0 failed
 ```

@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {ISP1Verifier} from "./interfaces/ISP1Verifier.sol";
 import {RequestRouter} from "./RequestRouter.sol";
 import {CallbackDispatcher} from "./CallbackDispatcher.sol";
+import {IERC20} from "./interfaces/IERC20.sol";
 
 /// @notice Phase 1 fulfillment adapter around vendor ISP1Verifier.
 contract Fulfillment {
@@ -66,8 +67,13 @@ contract Fulfillment {
         if (!ok) revert CallbackFailed();
 
         if (bounty > 0) {
-            (bool paid,) = payable(msg.sender).call{value: bounty}("");
-            require(paid, "bounty transfer failed");
+            address token = router.bountyToken(requestId);
+            if (token == address(0)) {
+                (bool paid,) = payable(msg.sender).call{value: bounty}("");
+                require(paid, "bounty transfer failed");
+            } else {
+                require(IERC20(token).transfer(msg.sender, bounty), "erc20 bounty");
+            }
             emit BountyPaid(requestId, msg.sender, bounty);
         }
         emit Fulfilled(requestId, publicValues, msg.sender);

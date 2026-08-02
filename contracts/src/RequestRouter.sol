@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {ProgramRegistry} from "./ProgramRegistry.sol";
 import {ICoprocessorConsumer} from "./interfaces/ICoprocessorConsumer.sol";
+import {IERC20} from "./interfaces/IERC20.sol";
 
 /// @notice Phase 1 request router with lifecycle + ETH bounty escrow.
 contract RequestRouter {
@@ -34,6 +35,8 @@ contract RequestRouter {
 
     uint256 public nextRequestId;
     mapping(uint256 => Request) public requests;
+    /// @notice Bounty token per request; `address(0)` means native ETH.
+    mapping(uint256 => address) public bountyToken;
     uint64 public defaultTimeout = 1 days;
 
     event ComputationRequested(
@@ -57,6 +60,8 @@ contract RequestRouter {
     error NotExpired();
     error NotRequester();
     error FulfillerNotAllowed();
+    error InvalidToken();
+    error ZeroBounty();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
@@ -113,6 +118,39 @@ contract RequestRouter {
         );
     }
 
+    /// @notice Escrow an ERC-20 bounty (pull via allowance) instead of ETH.
+    function requestErc20(
+        bytes32 programId,
+        bytes calldata input,
+        address callback,
+        uint64 timeout,
+        address token,
+        uint256 amount
+    ) external returns (uint256 requestId) {
+        if (callback == address(0)) revert InvalidCallback();
+        if (token == address(0)) revert InvalidToken();
+        if (amount == 0) revert ZeroBounty();
+        (bytes32 programVKey,) = registry.requireActive(programId);
+        uint64 expiresAt = uint64(block.timestamp) + (timeout == 0 ? defaultTimeout : timeout);
+        requestId = ++nextRequestId;
+        requests[requestId] = Request({
+            programId: programId,
+            programVKey: programVKey,
+            input: input,
+            callback: callback,
+            requester: msg.sender,
+            bounty: amount,
+            createdAt: uint64(block.timestamp),
+            expiresAt: expiresAt,
+            status: Status.Pending
+        });
+        bountyToken[requestId] = token;
+        require(IERC20(token).transferFrom(msg.sender, address(this), amount), "transferFrom");
+        emit ComputationRequested(
+            requestId, programId, programVKey, input, callback, msg.sender, amount, expiresAt
+        );
+    }
+
     function assertFulfiller(address fulfiller) external view {
         if (allowlistEnabled && !allowedFulfillers[fulfiller]) revert FulfillerNotAllowed();
     }
@@ -124,9 +162,14 @@ contract RequestRouter {
         r.status = Status.Fulfilled;
         bounty = r.bounty;
         r.bounty = 0;
+        address token = bountyToken[requestId];
         if (bounty > 0) {
-            (bool paid,) = payable(msg.sender).call{value: bounty}("");
-            require(paid, "bounty forward failed");
+            if (token == address(0)) {
+                (bool paid,) = payable(msg.sender).call{value: bounty}("");
+                require(paid, "bounty forward failed");
+            } else {
+                require(IERC20(token).transfer(msg.sender, bounty), "erc20 forward");
+            }
         }
         emit RequestFulfilled(requestId, tx.origin);
     }
@@ -168,8 +211,13 @@ contract RequestRouter {
         r.status = Status.Refunded;
         uint256 amount = r.bounty;
         r.bounty = 0;
-        (bool paid,) = payable(msg.sender).call{value: amount}("");
-        require(paid, "refund failed");
+        address token = bountyToken[requestId];
+        if (token == address(0)) {
+            (bool paid,) = payable(msg.sender).call{value: amount}("");
+            require(paid, "refund failed");
+        } else {
+            require(IERC20(token).transfer(msg.sender, amount), "erc20 refund");
+        }
         emit RequestRefunded(requestId, msg.sender, amount);
     }
 }
