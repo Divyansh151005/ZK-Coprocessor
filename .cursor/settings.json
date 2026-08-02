@@ -1,0 +1,13 @@
+{
+  "plugins": {
+    "nvidia-skills": {
+      "enabled": true
+    },
+    "coralogix-mcp": {
+      "enabled": true
+    },
+    "monk": {
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+---
+description: Require real end-to-end tests and validation before continuing to the next step
+alwaysApply: true
+---
+
+# Test and validate before moving on
+
+No feature, bugfix, refactor, or integration is done until it has been exercised with real commands and a clear pass/fail result.
+
+## Definition of done (every change)
+
+1. **Build/type-check** — compile or type-check the affected surface (`check-compiler-errors` when applicable).
+2. **Automated tests** — run the narrowest relevant unit/integration tests; add tests if coverage is missing for new behavior.
+3. **End-to-end path** — run the real user/system path (CLI, API, prover pipeline, UI, or script) that proves the change works together, not only in isolation.
+4. **Failure check** — confirm bad inputs / error paths fail loudly when that matters for the change.
+5. **Evidence** — paste or cite the commands run and the outcome. Do not claim success without fresh local evidence.
+
+## Gates
+
+- Do **not** start the next feature/step until the current step’s checks above are green.
+- After green, follow `commit-push-after-success` (add, commit, push) before the next step.
+- Do **not** treat “code looks right” or “should work” as validation.
+- If E2E cannot run yet (missing deps, no server, empty scaffold), say **BLOCKED**, list what is missing, set it up, then re-run — do not skip.
+- For behavior claims (“fixed”, “faster”, “works”), use `verify-this` with baseline vs treatment when a before/after comparison is meaningful.
+
+## Prefer
+
+- Repo’s real test runners and scripts over one-off manual guesses.
+- Team Kit: `check-compiler-errors`, `run-smoke-tests`, `verify-this`, then `review-and-ship` only after green.
+- Fixing failures before expanding scope.

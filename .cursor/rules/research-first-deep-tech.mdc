@@ -1,0 +1,29 @@
+---
+description: Research every topic and detail before implementing; never assume in this deep-tech ZK project
+alwaysApply: true
+---
+
+# Research first, implement second
+
+This project is deep tech (ZK proofs, circuits, coprocessors, cryptography). Do not invent APIs, protocols, gas costs, security properties, or “standard” patterns from memory alone.
+
+## Before writing code
+
+1. **Restate the task** as concrete requirements and unknowns.
+2. **Research** the topic end-to-end: official docs, specs, RFCs, paper/protocol notes, repo README/ADRs, source of truth in dependencies, and prior art in this workspace.
+3. **Resolve unknowns** (versions, constraints, threat model, performance bounds) with citations or file/link evidence.
+4. **Only then** design and implement.
+
+## Forbidden
+
+- Guessing library APIs, circuit semantics, proof systems, or chain behavior.
+- Skipping docs because something “looks familiar.”
+- Implementing a placeholder and calling it correct.
+- Proceeding when a critical detail is still unclear — stop and research or ask a precise question.
+
+## Depth bar for this repo
+
+- Prefer primary sources (specs, audited docs, canonical implementations) over blog summaries.
+- Cross-check at least two sources when claims affect correctness or security.
+- Record what was researched (sources + key findings) briefly before coding so the trail is reviewable.
+- If research contradicts an earlier plan, update the plan before coding.

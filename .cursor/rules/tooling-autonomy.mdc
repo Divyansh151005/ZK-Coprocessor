@@ -1,0 +1,29 @@
+---
+description: Agent may install and use any MCP, skill, plugin, or CLI needed for the task
+alwaysApply: true
+---
+
+# Tooling autonomy (granted)
+
+The user has pre-authorized installing and using external agent tooling for this project. Do not ask permission for routine setup when a capability is missing.
+
+## Do without waiting
+
+- Discover, enable, authenticate, and call MCP servers needed for the task.
+- Install or enable Cursor plugins, skills, and CLIs required to complete the work.
+- Fetch skill docs and follow them before improvising.
+- Prefer the right specialized tool (MCP, skill, subagent) over guessing.
+
+## Still require confirmation
+
+- Destructive or irreversible actions (force-push, hard reset, dropping data, production deploys).
+- Opening PRs unless the user asked (commits/pushes after validated success are pre-authorized — see `commit-push-after-success`).
+- Spending money or creating paid cloud resources beyond local/dev defaults.
+- Sharing secrets outside the local/dev environment.
+
+## How to proceed when blocked
+
+1. Identify the missing capability.
+2. Install/enable/auth it.
+3. Re-run the task with that tool.
+4. If still blocked, report what was attempted and the exact blocker.

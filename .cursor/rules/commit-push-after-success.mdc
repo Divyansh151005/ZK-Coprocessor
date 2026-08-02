@@ -1,0 +1,32 @@
+---
+description: After each validated success, git add, commit, and push so progress is saved
+alwaysApply: true
+---
+
+# Save progress after every success
+
+The user has pre-authorized `git add`, `git commit`, and `git push` for this repo after a step is validated green. Do this before starting the next step.
+
+## When to save
+
+After a milestone that passed `test-and-validate-e2e` (build/tests/E2E evidence green), including:
+- Scaffold or dependency setup that works
+- A feature, fix, or integration that is proven
+- Rules/docs that complete a requested setup step
+
+Do **not** commit failed, half-broken, or unvalidated work just to “checkpoint.”
+
+## Procedure
+
+1. Confirm validation evidence is green for the current step.
+2. `git status` / `git diff` — stage only relevant files (never secrets: `.env`, credentials, private keys).
+3. Commit with a concise message focused on why (HEREDOC; follow repo commit style).
+4. Push to the tracked remote branch (`git push -u` on first push for the branch).
+5. Confirm with `git status` that the working tree is clean and the branch is up to date with remote.
+
+## Remote / first push
+
+- If no remote exists, set one up (create GitHub repo with `gh` if authenticated, or ask once for the remote URL), then push.
+- Never `git push --force` to `main`/`master`.
+- Never rewrite history, amend pushed commits, or skip hooks unless the user explicitly says so.
+- If push fails, fix auth/remote and retry; do not continue as if progress was saved.

@@ -1,0 +1,25 @@
+---
+description: Route validation, shipping, and review work through Cursor Team Kit skills in this ZK Coprocessor repo
+alwaysApply: true
+---
+
+# Team Kit workflow for ZK-Coprocessor
+
+This repo uses Cursor Team Kit for local validation and shipping. Prefer these skills over ad-hoc checklists.
+
+## When to invoke
+
+- After adding or changing TypeScript/Rust/circuit code: run `check-compiler-errors` before claiming the change works.
+- Before opening or updating a PR: use `review-and-ship` or `new-branch-and-pr`.
+- When CI fails on a PR: use `fix-ci` or `loop-on-ci` (with `gh pr checks` as source of truth).
+- When asked to prove a fix or performance claim: use `verify-this` with baseline/treatment artifacts under `/tmp/verify-this/<claim-slug>/`.
+- Before a harsh maintainability pass on prover/circuit glue: use `thermo-nuclear-code-quality-review`.
+- After AI-heavy edits: run `deslop` before review.
+
+## Project constraints
+
+- Keep imports at file top (Team Kit `no-inline-imports`).
+- Exhaustive `switch` on unions/enums with a `never` default (Team Kit `typescript-exhaustive-switch`).
+- Do not invent compile/test success — re-run the repo’s real check commands.
+- Order: `research-first-deep-tech` → implement → `test-and-validate-e2e` → `commit-push-after-success` → next step. Use `tooling-autonomy` when a skill/MCP/CLI is missing.
+- This workspace may start sparse; if there is no compile target yet, say so explicitly instead of skipping silently.
