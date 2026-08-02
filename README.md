@@ -33,9 +33,26 @@ See [`scripts/README-e2e.md`](./scripts/README-e2e.md) and [`NOTES/PHASE0_EVIDEN
 | `crates/orchestrator` | Job FSM + ETH floor economics |
 | `sdk/guest` | `env::read_state` / journal codegen docs |
 | `sdk/ts` | TypeScript journal decode |
-| `cli/` | `create-zk-coprocessor` scaffold |
+| `cli/` | `create-zk-coprocessor` scaffold + Anvil deploy + ELF CAS |
+| `crates/orchestrator` | Job FSM + `orchestrator` node binary |
+| `guest-mpt/` | In-guest alloy-trie MPT verification |
 
-## Source of truth
+## DevEx (v1)
+
+```bash
+cargo run -p create-zk-coprocessor -- new my-app --template compute
+cargo run -p create-zk-coprocessor -- new my-state --template state
+# with Anvil running:
+cargo run -p create-zk-coprocessor -- deploy --network anvil
+# writes deployments/anvil.json
+HASH=$(cargo run -q -p create-zk-coprocessor -- store-elf --elf path/to/elf)
+# optional: register on ProgramRegistry
+# cargo run -p create-zk-coprocessor -- register --elf-hash $HASH --vkey 0x.. --registry $REGISTRY
+./scripts/e2e-orchestrator-soak.sh
+```
+
+Install CLI: `cargo install --path cli` (or `npx` via root `package.json` bin when `cargo` is on PATH).
+TS journal helpers: [`sdk/ts`](./sdk/ts).
 
 - **[`End_Goal`](./End_Goal)** — final product (authoritative)
 - [`NOTES/LOCKED_DECISIONS.md`](./NOTES/LOCKED_DECISIONS.md) — SP1, vendor gateway, Axiom-class PMMR, ETH-first

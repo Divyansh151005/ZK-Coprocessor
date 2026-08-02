@@ -11,7 +11,7 @@ Companion to `PHASE0_EVIDENCE.md`. All suites run 2026-08-02 on Anvil/local.
 | 3 | Guest SDK + journal codegen docs | `cargo test -p zk-coprocessor-sdk` |
 | 4 | Sepolia/Groth16 | **BLOCKED_UNFUNDED** — `NOTES/PHASE4_SEPOLIA.md`; gate: `./scripts/preflight-spn.sh` |
 | 5 | Orchestrator FSM + runnable node soak | `cargo test -p zk-orchestrator`; `./scripts/e2e-orchestrator-soak.sh` (N=8) |
-| 6 | `create-zk-coprocessor` scaffold + TS journal decode | `cargo test -p create-zk-coprocessor`; JS decode assertSum |
+| 6 | DevEx CLI + TS SDK (M5) | `cargo test -p create-zk-coprocessor`; `npx tsx --test sdk/ts/test/decode.test.ts`; `deploy --network anvil` → `deployments/anvil.json`; `store-elf` CAS |
 | 7 | ProverNetwork stake/slash/earn + L2 matrix note | `Phase7ProverNetworkTest` 2/2; `NOTES/PHASE7_L2_MATRIX.md` |
 
 ## Full forge

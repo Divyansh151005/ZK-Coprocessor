@@ -21,3 +21,10 @@ contracts/lib/
 # Proof binaries (JSON fixtures may be committed if small)
 *.bin
 !**/fixtures/.gitkeep
+
+# Local Anvil address books (regenerate via CLI deploy)
+/deployments/
+/artifacts/elf/
+
+# Node
+node_modules/

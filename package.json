@@ -1,0 +1,9 @@
+{
+  "name": "create-zk-coprocessor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scaffold wrapper — prefer: cargo install --path cli",
+  "bin": {
+    "create-zk-coprocessor": "./bin/create-zk-coprocessor.js"
+  }
+}
