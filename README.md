@@ -42,4 +42,5 @@ See [`scripts/README-e2e.md`](./scripts/README-e2e.md) and [`NOTES/PHASE0_EVIDEN
 - [`SDD`](./SDD) / [`PHASES`](./PHASES) — architecture & build order
 - [`NOTES/PHASE_EVIDENCE.md`](./NOTES/PHASE_EVIDENCE.md) — validation evidence
 
-**Verifier:** production uses Succinct `ISP1Verifier` / `SP1VerifierGateway`. Local Anvil uses `MockSP1Verifier` with the same interface.
+**Verifier:** production / `PROVE_MODE=sp1` uses Succinct `SP1VerifierGateway` + Groth16 v6.1.0. Default local harness uses `MockSP1Verifier` (`PROVE_MODE=mock`). See [`NOTES/MILESTONE_AB_SP1.md`](./NOTES/MILESTONE_AB_SP1.md).
+

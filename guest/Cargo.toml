@@ -1,10 +1,10 @@
 [package]
 name = "add-guest"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
 
 [dependencies]
-alloy-sol-types = { workspace = true }
-sp1-zkvm = "6.0.1"
+alloy-sol-types = "0.8"
+sp1-zkvm = "6.3.1"
 zk-coprocessor-lib = { path = "../lib" }

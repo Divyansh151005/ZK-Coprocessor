@@ -12,6 +12,14 @@ path = "src/main.rs"
 name = "prove-mock"
 path = "src/bin/prove_mock.rs"
 
+[[bin]]
+name = "prove-groth16"
+path = "src/bin/prove_groth16.rs"
+
+[[bin]]
+name = "vkey"
+path = "src/bin/vkey.rs"
+
 [dependencies]
 zk-coprocessor-lib = { path = "../lib" }
 alloy-sol-types = { workspace = true }
@@ -20,3 +28,8 @@ hex = { workspace = true }
 sha3 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sp1-sdk = { version = "6.3.1", features = ["blocking", "native-gnark"] }
+dotenvy = "0.15"
+
+[build-dependencies]
+sp1-build = "6.3.1"

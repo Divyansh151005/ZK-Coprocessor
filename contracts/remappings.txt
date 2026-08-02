@@ -1,2 +1,2 @@
 forge-std/=lib/forge-std/src/
-@sp1-contracts/=src/interfaces/
+@sp1-contracts/=lib/sp1-contracts/contracts/src/
