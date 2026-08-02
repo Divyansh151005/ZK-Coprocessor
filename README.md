@@ -5,9 +5,10 @@ Automated ZK-Coprocessor framework: trustless off-chain compute and historical c
 ## Source of truth
 
 - **[`End_Goal`](./End_Goal)** — final product features and end-state (authoritative)
-- [`SDD`](./SDD) — architecture (flexible)
-- [`PHASES`](./PHASES) — build phases (flexible; expect gap-fills)
+- [`NOTES/LOCKED_DECISIONS.md`](./NOTES/LOCKED_DECISIONS.md) — confirmed engineering architecture
+- [`SDD`](./SDD) — architecture (flexible, production-pragmatic revision)
+- [`PHASES`](./PHASES) — build phases (Phase 0 vertical slice first)
 - [`MCPs`](./MCPs) — optional Cursor MCP suggestions
-- [`NOTES/`](./NOTES/) — research, voids, and planning prep (read before implementing)
+- [`NOTES/`](./NOTES/) — research and planning prep
 
-No implementation until a phase brief is researched against `End_Goal` and `NOTES/`.
+No implementation until plan mode completes; then Phase 0 E2E slice before breadth.

@@ -1,110 +1,114 @@
-Building an automated ZK-Coprocessor framework from scratch is a massive distributed systems and cryptography engineering challenge. It requires bridging completely different execution environments (the EVM, a RISC-V zero-knowledge virtual machine, and an off-chain distributed orchestrator) while maintaining perfect cryptographic integrity.
+# PHASES — production-pragmatic build order
 
-Here is the exhaustive, phase-by-phase technical implementation guide to building a production-ready Automated ZK-Coprocessor Framework.
+**Status:** Flexible. Revised 2026-08-02 after End_Goal gap analysis + locked SDD principles.  
+**Product truth:** [`End_Goal`](./End_Goal) · **Architecture:** [`SDD`](./SDD) · **Gaps/research:** [`NOTES/`](./NOTES/)
 
----
-
-### Phase 1: Cryptographic Foundation & On-Chain Gateway
-
-*The goal of this phase is to build the smart contracts that will accept user requests, lock computation fees, and mathematically verify the final zero-knowledge proofs on Ethereum.*
-
-1. **Compile the Universal SNARK Verifier:** BN254 Curve integration.
-Raw STARK proofs from the zkVM are too large for the EVM. You must generate a **Groth16 or Plonk Verifier smart contract** tailored to the Alt-BN128 (BN254) elliptic curve (the only curve natively supported by Ethereum precompiles). This contract will mathematically verify the pairing equation $e(A, B) = e(C, G_2) \cdot e(Z, H)$ in Solidity. Use tools like `gnark` (Consensys) to output the `UniversalVerifier.sol` contract.
-
-
-2. **Build the RequestRouter Contract:** Handling bounties and state.
-Implement a `RequestRouter.sol` contract. This contract must contain a `requestComputation(bytes32 programId, bytes inputData, uint256 gasBounty)` function. It must lock the user's ETH (to pay the off-chain relayer for gas later) and emit a `ComputationRequested` event containing the exact input parameters and the IPFS/Arweave hash of the developer's compiled zkVM program.
-
-
-3. **Implement the Callback Dispatcher:** Securing the final mile.
-Build `CallbackDispatcher.sol`. This contract is called *only* by the Universal Verifier after a proof successfully passes. It unpacks the verified output (the "journal") and uses a low-level `.call()` to push the data back to the original developer's dApp contract. You must implement strict reentrancy guards and ensure the caller is exclusively the Verifier contract.
-
+Rule: each phase ends with tests + E2E evidence, then commit/push. Prefer vertical integration over isolated crypto science.
 
 ---
 
-### Phase 2: The Trustless Data Layer (State Access)
+### Phase 0: Thin E2E vertical slice (de-risk lifecycle)
 
-*Before the zkVM can compute anything, it needs access to historical Ethereum data. Because centralized RPCs (like Infura) cannot be trusted, you must build a cryptographic pipeline to verify historical data inside the ZK circuit.*
+*Prove request → prove → vendor-verify → callback on local Anvil before any heavy crypto.*
 
-1. **Deploy a Block Hash Accumulator (MMR):** Bypassing the 256-block limit.
-Ethereum smart contracts can only natively read the last 256 block hashes via the `BLOCKHASH` opcode. Deploy a Merkle Mountain Range (MMR) accumulator smart contract that continually caches block hashes. This provides a cryptographically secure root of all historical blocks.
-
-
-2. **Fetch MPT Inclusion Proofs:** Off-chain witness generation.
-When a request comes in, your off-chain system must query an Archive Node using `eth_getProof`. This returns the raw data and the Merkle Patricia Trie (MPT) sibling hashes connecting the data (like a token balance) to the `stateRoot` of that specific block.
-
-
-3. **Implement RLP Decoding & State Verification:** Inside the zkVM.
-Write a core Rust library for your zkVM that acts as the "Data Reader." This library must take the untrusted MPT sibling hashes, perform RLP (Recursive Length Prefix) decoding (Ethereum's native serialization), and hash the nodes using Keccak-256 up to the block's `stateRoot`. If the derived root matches the MMR accumulator root, the data is authentic.
-
+1. **API contracts first:** Guest `env::read` / `env::commit`; Solidity `receiveCoprocessorResult(bytes journal)` (or equivalent).  
+2. **Scaffold:** Hardcoded RISC-V guest (e.g. add two numbers).  
+3. **Minimal RequestRouter:** Emit event with inputs + programId; simple ETH bounty optional.  
+4. **Orchestrator script:** Catch event → vendor zkVM SDK prove (local) → submit via **canonical VerifierGateway** on Anvil → callback.  
+5. **Exit criteria:** One green local lifecycle; journal matches expected sum.
 
 ---
 
-### Phase 3: The zkVM Compute Engine
+### Phase 1: Application gateway + registry + lifecycle
 
-*This is the core execution environment. Instead of forcing developers to write custom ZK circuits, you will integrate an open-source RISC-V zkVM (like SP1 Hypercube or RISC Zero) so they can write standard Rust code.*
+*Our Solidity surface around the vendor verifier — not a custom gnark verifier.*
 
-1. **Embed the zkVM Environment:** RISC-V architecture.
-Integrate a modern zkVM that supports a 64-bit or 32-bit RISC-V instruction set. Provide a "Guest SDK" for developers. This SDK exposes an `env::read()` function (to ingest the cryptographic witness and user inputs) and an `env::commit()` function (to publicize the final calculation result to the "journal").
-
-
-2. **Patch Cryptographic Precompiles:** Optimizing for cryptography.
-Standard Rust cryptographic libraries (like `k256` for ECDSA signatures or `sha2` for hashing) take millions of CPU cycles inside a zkVM, ballooning proving time. You must patch these Rust crates to route to the zkVM's hardware-accelerated "precompile" circuits, drastically reducing the execution trace length.
-
-
-3. **Implement Trace Sharding:** Parallel STARK proving.
-A complex computation (like a machine learning inference) will generate an execution trace of billions of steps. Configure the zkVM to split this trace into parallel shards (e.g., chunks of $2^{22}$ cycles). Distribute these shards across a GPU cluster so they can be proven simultaneously using a STARK proving system, rather than linearly.
-
+1. **ProgramRegistry:** `programId` → ELF CID + vk/image id; immutable hash binding.  
+2. **RequestRouter:** `requestId`, inputs, callback, bounty lock; rich `ComputationRequested` event.  
+3. **Fulfillment adapter:** Call vendor `VerifierGateway`; bind public values to request; release bounty; dispatch callback.  
+4. **CallbackDispatcher:** Reentrancy guards, gas stipend, failure handling.  
+5. **Lifecycle:** pending / fulfilled / expired / refunded; replay protection.  
+6. **Threat tests:** bad proof, wrong vk, reentrancy, double fulfill, underfunded gas path.  
+7. **Exit criteria:** Foundry suite green; Anvil E2E with registered program.
 
 ---
 
-### Phase 4: Proof Recursion & Compression
+### Phase 2: Trustless data layer (Axiom-class)
 
-*A raw STARK proof generated by the zkVM is massive (often several megabytes). It cannot be verified on Ethereum due to block gas limits. You must build a multi-layered compression pipeline.*
-
-1. **Execute STARK Recursion (Aggregation):** Proving the prover.
-Take the parallel STARK proofs generated from the shards in Phase 3. Feed these proofs back into a secondary, smaller zkVM circuit (the Recursion Circuit). This circuit's only job is to verify the previous proofs and output a single "succinct" STARK proof attesting that all shards were executed correctly.
-
-
-2. **Apply the Groth16 Wrapper Circuit:** Bridging STARKs to SNARKs.
-Take the aggregated succinct STARK proof and run it through a final wrapping circuit. This circuit uses a polynomial commitment scheme (like KZG) to compress the STARK into a constant-size Groth16 or Plonk SNARK proof.
-
-
-3. **Link to a Trusted Setup:** The cryptographic ceremony.
-Groth16 requires a trusted setup. Ensure your wrapper circuit utilizes parameters generated from a recognized Multi-Party Computation (MPC) ceremony, such as the Perpetual Powers of Tau. Hardcode the resulting Verification Key into your on-chain `UniversalVerifier.sol`.
-
+1. **HeaderCommitment:** On-chain PMMR / padded MMR updated by **ZK-proven batches** (e.g. 1,024 headers) — not naive per-block pushes.  
+2. **Witness path:** Archive `eth_getProof` off-chain only.  
+3. **Guest state reader:** RLP + Keccak MPT verify vs committed root; begin `env::read_state`.  
+4. **Scope v1:** Single storage-slot (or account) proof end-to-end.  
+5. **Exit criteria:** Guest rejects tampered witness; accepts honest proof against commitment.
 
 ---
 
-### Phase 5: Off-Chain Orchestrator & Relayer Infrastructure
+### Phase 3: zkVM productization (still vendor stack)
 
-*This is the decentralized backend (written in Go or Rust) that automates the entire process, connecting the blockchain to the zkVM cluster.*
-
-1. **Build the RPC Indexer:** Event listening.
-Deploy high-availability Indexer nodes (using libraries like `ethers-rs` or `viem`) connected to Ethereum WebSocket RPCs. They listen exclusively for the `ComputationRequested` events from your `RequestRouter.sol` contract.
-
-
-2. **Engineer the Proving Pool:** Distributed computing.
-Build a job queue (e.g., using Redis or RabbitMQ) that assigns incoming computation requests to available GPU/Metal worker nodes. The worker node pulls the developer's compiled WASM/RISC-V binary from decentralized storage (IPFS/Ceramic), fetches the required historical MPT proofs, and feeds them into the zkVM.
-
-
-3. **Develop the Transaction Relayer:** Gas and MEV management.
-Once the Groth16 SNARK is generated, the Relayer formats it into an Ethereum transaction. The Relayer must handle nonce management (preventing stuck transactions), dynamic gas pricing (EIP-1559 priority fees), and ideally route transactions through Flashbots or MEV-Blocker to prevent the callback transaction from being front-run or manipulated by searchers.
-
+1. Lock **one** zkVM (SP1 or RISC Zero) for the framework.  
+2. Guest SDK polish, journal ABI codegen, precompile-backed crypto crates.  
+3. Dev-mode / mock verify for fast iteration.  
+4. **Defer** custom trace sharding / GPU cluster ownership.  
+5. **Exit criteria:** Non-trivial guest (state read + compute) proves via vendor Groth16/Plonk path.
 
 ---
 
-### Phase 6: Developer SDK & Abstraction Layer
+### Phase 4: Prove path hardening (vendor compression, not custom math)
 
-*If developers have to understand MPT proofs or Groth16 wrappers, your framework will fail. The final phase is abstracting everything into a seamless DevEx.*
+1. Production prove via vendor SDK modes (`groth16` / Plonk) and/or vendor prover network.  
+2. Pin proof versions to gateway routes; document trusted-setup assumptions.  
+3. Cost/latency budgets for bounty UX.  
+4. **Exit criteria:** Repeatable Sepolia (or chosen testnet) fulfillment.
 
-1. **Build the CLI Tool:** Scaffolding the environment.
-Create a Command Line Interface (e.g., `npx create-zk-coprocessor`). This CLI scaffolds a monorepo containing two directories: `/app` (the Rust code that will run in the zkVM) and `/contracts` (the Solidity contracts that will request the computation).
+---
 
+### Phase 5: Orchestrator & relayer (operations)
 
-2. **Provide the Contract Bindings SDK:** Type safety.
-Provide an npm package (e.g., `@framework/sdk`) that generates TypeScript bindings for the developer's ZK program. This allows their frontend to easily estimate the required gas bounty and format the inputs exactly as the Rust program expects them.
+1. HA indexer + reorg/finality handling.  
+2. Job queue state machine; ELF hash verify before prove.  
+3. Relayer: nonce, EIP-1559, private relay; fulfiller auth v1.  
+4. Economics: ETH bounty floor; design ERC-20 / oracle / intent pricing (implement incrementally).  
+5. Observability: request traces, fail reasons, SLA timers → refund.  
+6. **Exit criteria:** Soak test of N requests with failure injection.
 
+---
 
-3. **Implement the Build & Deploy Pipeline:** One-click deployment.
-When the developer runs `framework deploy`, your CLI must automatically compile their Rust code into a RISC-V ELF binary, hash it to generate a unique `programId`, upload the binary to a decentralized storage network, and output the exact Solidity interface they need to paste into their dApp to call it.
+### Phase 6: Developer CLI & SDK (expand from Phase 0 scaffold)
+
+1. `create-zk-coprocessor` monorepo templates (compute-only + state-reading + callback dApp).  
+2. TS SDK / bindings; bounty estimation hooks.  
+3. `framework deploy`: build ELF, upload, register, address book, explorer verify.  
+4. **Exit criteria:** New user path without touching proof internals.
+
+---
+
+### Phase 7: Decentralized proving (End_Goal §4)
+
+1. Open prover participation; stake/slash or integrate existing prover network / AVS design.  
+2. Assignment, deadlines, griefing defenses.  
+3. Multi-L2 deployment matrix (Base, Arbitrum, Optimism, Ethereum).  
+4. **Exit criteria:** Third-party prover can earn bounty under protocol rules.
+
+---
+
+### Deferred (track, don’t block v1)
+
+- Full privacy-preserving VIP history circuits.  
+- Omnichain reads / light-client bridging.  
+- Hand-rolled verifier or custom STARK wrapper research.
+
+---
+
+### Phase dependency sketch
+
+```text
+Phase 0 (slice) ──► Phase 1 (gateway) ──► Phase 5 (ops hardening)
+       │                    │
+       ├────────────────────┼──► Phase 3 (guest SDK)
+       │                    │
+       └────────► Phase 2 (state) ──► richer guests
+                          │
+Phase 4 (testnet prove) ◄─┘
+Phase 6 (CLI) expands from 0 continuously
+Phase 7 after centralized path is reliable
+```

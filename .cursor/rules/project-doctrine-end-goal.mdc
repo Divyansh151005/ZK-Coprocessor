@@ -8,9 +8,11 @@ alwaysApply: true
 ## Source of truth
 
 - **`End_Goal`** is the ultimate truth for product features, qualities, and end-state. If anything conflicts with it, prefer `End_Goal`.
-- **`SDD`** and **`PHASES`** are flexible working plans. They may be incomplete or non-production-grade. Improve them when research shows voids.
+- **`NOTES/LOCKED_DECISIONS.md`** holds stakeholder-confirmed engineering choices (vendor gateway, PMMR, vendor SDK, API-first, Phase 0 slice). Follow them unless `End_Goal` forces a change.
+- **`SDD`** and **`PHASES`** are flexible working plans (revised production-pragmatic). Improve them when research shows voids.
 - **`MCPs`** is optional tooling guidance, not a requirement.
 - Durable research lives in **`NOTES/`**. Read it before planning or implementing a phase.
+- **Do not implement** until plan mode finishes; then start with Phase 0 vertical slice, not isolated layers.
 
 ## Before implementing any phase plan the user provides
 

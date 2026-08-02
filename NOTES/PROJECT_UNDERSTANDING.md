@@ -1,8 +1,9 @@
 # Project understanding (read before plan mode)
 
-**Status:** Research + gap analysis only. No implementation started.  
+**Status:** Research locked; SDD/PHASES revised to production-pragmatic form. **No implementation until after plan mode.**  
 **Date:** 2026-08-02  
 **Source of truth:** [`End_Goal`](../End_Goal)  
+**Locked engineering decisions:** [`LOCKED_DECISIONS.md`](./LOCKED_DECISIONS.md)  
 **Flexible plans:** [`SDD`](../SDD), [`PHASES`](../PHASES)  
 **Optional tooling:** [`MCPs`](../MCPs)
 
@@ -71,17 +72,19 @@ Do not reinvent blindly—compose and differentiate.
 
 ---
 
-## 5. Critical design decisions to resolve in plan mode
+## 5. Critical design decisions
 
-1. **zkVM vendor:** SP1 vs RISC Zero (or abstract both). Affects guest SDK, precompiles, verifier contracts, Docker/prove hardware, trusted setup story.  
-2. **Universal verifier strategy:** Reuse vendor **VerifierGateway/Router** + pin program VK / image ID, vs hand-rolling gnark Solidity (PHASES §1). Industry default: **reuse gateway**, own the **application gateway** (request/escrow/callback).  
-3. **State engine scope v1:** Headers-only vs account/storage/tx/receipt (Axiom-class). MPT+RLP in-guest is a multi-month workstream—scope a minimal honest v1.  
-4. **Block-hash cache:** Naive “store hashes” vs Axiom-style ZK-updated batches + PMMR snapshots for async proving.  
-5. **Centralized prover v1 vs network:** Ship single-operator orchestrator first; design interfaces so AVS/SPN-like network plugs in later (`End_Goal` §4).  
-6. **Program identity:** `programId` = hash(ELF) vs VK hash vs content-addressed IPFS CID + on-chain registry.  
-7. **Economics:** ETH-only bounty vs ERC-20; fee split (prover gas vs protocol fee); timeout + refund; unpaid griefing.  
-8. **L2 strategy:** Which chains first (Sepolia → Base/Arb/OP → mainnet).  
-9. **Privacy use case:** VIP history without revealing exact activity needs selective disclosure / committed inputs—not free from “ZK of Rust.”
+### Locked (see `LOCKED_DECISIONS.md`)
+
+Vendor VerifierGateway · Axiom-class PMMR · lifecycle/registry/economics · vendor SDK compression · API-first + Phase 0 vertical slice.
+
+### Still open for plan mode
+
+1. **zkVM vendor:** SP1 vs RISC Zero (or abstract both).  
+2. **Header commitment:** build vs integrate existing (Axiom-class) system.  
+3. **L2 rollout order:** Anvil → Sepolia → Base/Arb/OP → mainnet.  
+4. **ERC-20 / gas abstraction:** oracle vs intent vs ETH-only v1.  
+5. **Program identity encoding:** exact hash(ELF) / vk / CID scheme.
 
 ---
 
@@ -99,8 +102,7 @@ When the user supplies a phase implementation plan:
 
 ## 7. Suggested plan-mode agenda (next chat)
 
-1. Lock v1 product slice that proves A+B+C+D **minimally** (e.g. “prove Fibonacci + one eth_getProof storage read → callback on Anvil/Sepolia”).  
-2. Choose zkVM + verifier strategy with written rationale.  
-3. Rewrite PHASES into production-aware phases including: request lifecycle, registry, observability, test matrix, multi-L2, and deferred AVS.  
-4. Update SDD sequence diagrams + trust boundaries.  
-5. Decide MCP enablement (Foundry / EVM RPC) when Phase 1–2 coding starts—not a blocker for planning.
+1. Confirm open decisions (zkVM, header commitment path, L2 order, bounty token).  
+2. Detail **Phase 0 vertical slice** (`VERTICAL_SLICE.md`) into concrete file layout, deps, and test commands.  
+3. Align Phase 1+ backlog with revised `PHASES` / `SDD`.  
+4. Only after plan approval: implement Phase 0 (no breadth before green E2E).
