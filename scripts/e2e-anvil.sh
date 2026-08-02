@@ -12,6 +12,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PATH="${HOME}/.sp1/bin:${HOME}/.cargo/bin:${HOME}/.foundry/bin:${PATH}"
 
+# Load SPN / RPC secrets if present (never commit .env).
+if [[ -f "${ROOT}/.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${ROOT}/.env"
+  set +a
+fi
+
 RPC_URL="${RPC_URL:-http://127.0.0.1:8545}"
 PK="${PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}"
 A="${A:-2}"

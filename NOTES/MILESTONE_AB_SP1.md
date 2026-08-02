@@ -22,15 +22,21 @@
 - Foundry: `Sp1GatewayLiveTest` — route registered; **mock proofs rejected** by real gateway.
 - Full suite: **25 passed**.
 
-## Groth16 prove status (hardware)
+## Groth16 prove status (hardware + SPN)
 
-- Docker Desktop reports **~3.8 GiB** memory; Succinct docs require **≥16GB** for local Groth16 wrap.
-- `prove-groth16` starts (STARK phase) but wrap is expected to fail/OOM or run very long locally.
-- Escape hatch: `SP1_PROVER=network NETWORK_PRIVATE_KEY=…` then:
+- Docker Desktop RAM is capped (~8GB on this machine); Succinct docs require **≥16GB** for local Groth16 wrap.
+- **SPN path wired** (`SP1_PROVER=network`, `NETWORK_PRIVATE_KEY` via gitignored `.env`):
+  - Program registered: `0x1ad2b9c2…338f488`
+  - Circuit version: **v6.1.0** (matches on-chain Groth16 verifier)
+  - Quote: ~0.4467 PROVE for add-guest Groth16
+  - **BLOCKED:** requester `0xbD8bEDd077996625782E1c02d9AE62e83A079223` has **0 PROVE** deposited  
+    (`insufficient balance 0.0000 PROVE for request cost 0.4467 PROVE`)
+- Escape hatch after deposit ([docs](https://docs.succinct.xyz/docs/sp1/prover-network/quickstart)):
   ```bash
+  # fund + deposit PROVE to the requester, then:
   PROVE_MODE=sp1 ./scripts/e2e-anvil.sh
   ```
-- Until a fixture exists at `contracts/src/fixtures/groth16-add.json`, SP1 E2E happy-path is **BLOCKED on this machine**; gateway wiring + ELF + mock-rejection are green.
+- Until a fixture exists at `contracts/src/fixtures/groth16-add.json`, SP1 Anvil happy-path fulfillment is **BLOCKED on PROVE funding**; gateway wiring + ELF + mock-rejection remain green.
 
 ## Commands
 

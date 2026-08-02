@@ -8,7 +8,7 @@ members = [
     "cli",
 ]
 # SP1 RISC-V guest builds via `cargo prove` / sp1 toolchain (not default host cargo).
-exclude = ["guest"]
+exclude = ["guest", "guest-mpt"]
 resolver = "2"
 
 [workspace.package]

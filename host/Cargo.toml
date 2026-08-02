@@ -17,6 +17,10 @@ name = "prove-groth16"
 path = "src/bin/prove_groth16.rs"
 
 [[bin]]
+name = "prove-mpt"
+path = "src/bin/prove_mpt.rs"
+
+[[bin]]
 name = "vkey"
 path = "src/bin/vkey.rs"
 
@@ -25,11 +29,16 @@ zk-coprocessor-lib = { path = "../lib" }
 alloy-sol-types = { workspace = true }
 clap = { workspace = true }
 hex = { workspace = true }
-sha3 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-sp1-sdk = { version = "6.3.1", features = ["blocking", "native-gnark"] }
+sha3 = { workspace = true }
+eyre = "0.6"
 dotenvy = "0.15"
+# Avoid pulling `alloy` umbrella (c-kzg link conflict with sp1-sdk's alloy 1.x).
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
+sp1-sdk = { version = "6.3.1", default-features = false, features = ["blocking", "native-gnark", "network"] }
+alloy-primitives = { version = "0.8", features = ["rlp"] }
+alloy-rlp = "0.3"
 
 [build-dependencies]
 sp1-build = "6.3.1"

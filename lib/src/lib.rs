@@ -1,19 +1,21 @@
-//! Shared journal ABI for Phase 0 add-two-numbers guest.
-//!
-//! Layout (Solidity `abi.encode`):
-//!   `struct PublicValues { uint64 a; uint64 b; uint64 sum; }`
-//!
-//! Overflow policy: wrapping add (`wrapping_add`). Documented for Phase 0.
+//! Shared journal ABIs for ZK-Coprocessor guests.
 
 use alloy_sol_types::sol;
 
 sol! {
     /// Phase 0 public values / journal ABI (v0).
-    /// Phase 1 will extend with `requestId` binding.
     struct PublicValuesStruct {
         uint64 a;
         uint64 b;
         uint64 sum;
+    }
+
+    /// Milestone C / Phase 2 storage proof journal.
+    struct StorageProofPublicValues {
+        bytes32 stateRoot;
+        address account;
+        bytes32 slot;
+        bytes32 value;
     }
 }
 
@@ -49,5 +51,21 @@ mod tests {
         assert_eq!(decoded.a, 7);
         assert_eq!(decoded.b, 11);
         assert_eq!(decoded.sum, 18);
+    }
+
+    #[test]
+    fn storage_proof_abi_roundtrip() {
+        let pv = StorageProofPublicValues {
+            stateRoot: [1u8; 32].into(),
+            account: [2u8; 20].into(),
+            slot: [3u8; 32].into(),
+            value: [4u8; 32].into(),
+        };
+        let encoded = StorageProofPublicValues::abi_encode(&pv);
+        let decoded = StorageProofPublicValues::abi_decode(&encoded, true).unwrap();
+        assert_eq!(decoded.stateRoot, pv.stateRoot);
+        assert_eq!(decoded.account, pv.account);
+        assert_eq!(decoded.slot, pv.slot);
+        assert_eq!(decoded.value, pv.value);
     }
 }

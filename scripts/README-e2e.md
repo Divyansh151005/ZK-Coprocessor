@@ -30,8 +30,18 @@ Overflow: wrapping add (matches Rust `wrapping_add`).
 PROVE_MODE=sp1 ./scripts/e2e-anvil.sh
 ```
 
-SPN: `SP1_PROVER=network` and `NETWORK_PRIVATE_KEY`.  
+SPN: copy `.env.example` → `.env`, set `SP1_PROVER=network` and `NETWORK_PRIVATE_KEY` (gitignored).  
+Requester must have **PROVE deposited** on the Succinct Network ([quickstart](https://docs.succinct.xyz/docs/sp1/prover-network/quickstart)).  
 Program vkey: `./target/release/vkey` after guest ELF build.
+
+## Milestone C (MPT)
+
+```bash
+chmod +x scripts/e2e-mpt.sh && ./scripts/e2e-mpt.sh
+# live mainnet eth_getProof → mpt-guest execute + tamper negative
+```
+
+See `NOTES/MILESTONE_C_MPT.md`.
 
 ## Commands
 
