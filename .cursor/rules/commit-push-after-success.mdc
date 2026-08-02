@@ -26,7 +26,8 @@ Do **not** commit failed, half-broken, or unvalidated work just to “checkpoint
 
 ## Remote / first push
 
-- If no remote exists, set one up (create GitHub repo with `gh` if authenticated, or ask once for the remote URL), then push.
+- Default remote: `origin` → `https://github.com/Divyansh151005/ZK-Coprocessor.git` ([ZK-Coprocessor](https://github.com/Divyansh151005/ZK-Coprocessor.git)). If missing, `git remote add origin` that URL.
+- Push to the tracked remote branch (`git push -u` on first push for the branch).
 - Never `git push --force` to `main`/`master`.
 - Never rewrite history, amend pushed commits, or skip hooks unless the user explicitly says so.
 - If push fails, fix auth/remote and retry; do not continue as if progress was saved.
