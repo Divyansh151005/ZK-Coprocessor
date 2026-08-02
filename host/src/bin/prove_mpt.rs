@@ -97,9 +97,12 @@ fn main() -> eyre::Result<()> {
     let vkey = pk.verifying_key().bytes32();
 
     if args.execute_only {
-        let (public_values, report) = client.execute(ELF, stdin).run().expect("execute");
-        let decoded =
-            StorageProofPublicValues::abi_decode(public_values.as_slice(), true).expect("decode");
+        let (public_values, report) = client
+            .execute(ELF, stdin)
+            .run()
+            .map_err(|e| eyre::eyre!("guest execute failed (bad MPT witness?): {e}"))?;
+        let decoded = StorageProofPublicValues::abi_decode(public_values.as_slice(), true)
+            .map_err(|e| eyre::eyre!("journal decode failed: {e}"))?;
         eprintln!(
             "execute OK cycles={} value=0x{}",
             report.total_instruction_count(),
@@ -179,13 +182,24 @@ fn fetch_mpt_witness(
             .ok_or_else(|| eyre::eyre!("block missing stateRoot"))?,
     )?;
 
+    // Pin tag → concrete block number so eth_getProof cannot race past eth_getBlockByNumber.
+    let pinned = match block_tag {
+        "latest" | "pending" | "safe" | "finalized" => block
+            .get("number")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| eyre::eyre!("block missing number"))?
+            .to_string(),
+        other => other.to_string(),
+    };
+    eprintln!("pinned block={pinned} for eth_getProof");
+
     let proof = rpc_call(
         rpc,
         "eth_getProof",
         json!([
             format!("{address}"),
             [format!("0x{}", hex::encode(slot))],
-            block_tag
+            pinned
         ]),
     )?;
 

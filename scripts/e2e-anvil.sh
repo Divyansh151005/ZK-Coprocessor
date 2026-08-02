@@ -66,7 +66,25 @@ if [[ "${PROVE_MODE}" == "sp1" ]]; then
   (cd "${ROOT}/guest" && cargo prove build)
 
   echo "== build host binaries =="
-  (cd "${ROOT}" && cargo build -p zk-coprocessor-host --release --bin vkey --bin prove-groth16)
+  (cd "${ROOT}" && cargo build -p zk-coprocessor-host --release \
+    --bin vkey --bin prove-groth16 --bin spn-balance)
+
+  # Pre-flight: when proving via Succinct Network, require escrow before spending time.
+  # Skip if a fixture already exists (offline replay) or SP1_PROVER is not network.
+  SPN_MIN_PROVE="${SPN_MIN_PROVE:-1}"
+  if [[ ! -f "${FIXTURE}" ]] && [[ "${SP1_PROVER:-}" == "network" ]]; then
+    echo "== SPN escrow pre-flight (min ${SPN_MIN_PROVE} PROVE) =="
+    if ! (cd "${ROOT}" && ./target/release/spn-balance --min "${SPN_MIN_PROVE}"); then
+      cat <<EOF
+BLOCKED: Insufficient SPN escrow balance (need >= ${SPN_MIN_PROVE} PROVE).
+  1. Fund requester with mainnet ETH (gas) + PROVE token.
+  2. Deposit via Explorer Account UI (SuccinctVApp).
+  3. Re-check: ./target/release/spn-balance
+  Docs: https://docs.succinct.xyz/docs/sp1/prover-network/quickstart
+EOF
+      exit 2
+    fi
+  fi
 
   if [[ ! -f "${FIXTURE}" ]]; then
     echo "== Milestone A/B: generate Groth16 proof =="

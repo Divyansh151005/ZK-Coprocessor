@@ -32,7 +32,8 @@ PROVE_MODE=sp1 ./scripts/e2e-anvil.sh
 
 SPN: copy `.env.example` → `.env`, set `SP1_PROVER=network` and `NETWORK_PRIVATE_KEY` (gitignored).  
 Requester must have **PROVE deposited** on the Succinct Network ([quickstart](https://docs.succinct.xyz/docs/sp1/prover-network/quickstart)).  
-Check escrow without the dashboard: `./target/release/spn-balance` (optional `--min 1` CI gate).  
+Check escrow without the dashboard: `./target/release/spn-balance` (optional `--min 1` CI gate; whole PROVE units, not floats).  
+`PROVE_MODE=sp1` + `SP1_PROVER=network` runs this pre-flight automatically before Groth16 (`SPN_MIN_PROVE`, default `1`).  
 Program vkey: `./target/release/vkey` after guest ELF build.
 
 ## Milestone C (MPT)

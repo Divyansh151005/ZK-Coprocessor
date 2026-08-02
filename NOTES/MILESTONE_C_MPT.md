@@ -32,6 +32,9 @@ Guest calls `alloy_trie::proof::verify_proof` for account under `stateRoot`, dec
 
 - Avoids `alloy` umbrella crate (would conflict with `sp1-sdk` / `c-kzg` link).
 - Blocking `reqwest` (no nested Tokio vs blocking SP1 client).
+- **Block pinning:** resolves `latest`/`safe`/… to a concrete block number from
+  `eth_getBlockByNumber`, then calls `eth_getProof` at that same number so state
+  root and MPT nodes cannot race across a new head.
 
 ## Evidence
 
